@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "nome": "Cleber",
+    "email": "cleber@email.com",
+    "senha": "$2b$10$aOnmUsTzs0hPYI4wE6E.iOz/xVbzmRuYBj/2.lCKHo7mIsWO8AyI.",
+    "online": false
+  },
+  {
+    "id": 2,
+    "nome": "Maria",
+    "email": "maria@email.com",
+    "senha": "$2b$10$unfHjgrmNny2ep/6nlRJuOqP5NpNMwxrn64E28Y4J3gskZdJ1Vax.",
+    "online": false
+  },
+  {
+    "id": 3,
+    "nome": "Cleber",
+    "email": "cleber@gmail.com",
+    "senha": "$2b$10$ZZuYILzTE5rx29pDteCCW.zuFzg53p11TXVcJT.R9KRuos/CyuqOK",
+    "online": false
+  },
+  {
+    "id": 4,
+    "nome": "Luiza",
+    "email": "luiza@gmail.com",
+    "senha": "$2b$10$CejNlYX3y9Fnop.AklGuqegwNDkUqect8wrCJMCm7JCZna.9l/eFW",
+    "online": false
+  }
+]
