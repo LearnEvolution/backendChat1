@@ -61,4 +61,83 @@ io.on('connection', (socket) => {
     const listaCompleta = todosUsuarios.map(u => ({
       id: String(u._id),
       nome: u.nome,
-      online: Object.values(usuariosOnline).some(o => o.id === String(u._i
+      online: Object.values(usuariosOnline).some(o => o.id === String(u._id))
+    }))
+
+    io.emit('usuariosOnline', listaCompleta)
+  })
+
+  socket.on('mensagemGrupo', async (dados) => {
+    console.log('💬 Mensagem grupo:', dados)
+    const Mensagem = require('./models/Mensagem')
+
+    const hora = new Date().toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    await Mensagem.create({
+      remetente: dados.remetente,
+      remetenteId: dados.remetenteId,
+      texto: dados.texto,
+      tipo: 'grupo'
+    })
+
+    io.emit('novaMensagem', {
+      tipo: 'grupo',
+      remetente: dados.remetente,
+      remetenteId: dados.remetenteId,
+      texto: dados.texto,
+      hora
+    })
+  })
+
+  socket.on('mensagemPrivada', (dados) => {
+    console.log('🔒 Mensagem privada:', dados)
+    const destinatario = Object.values(usuariosOnline)
+      .find(u => u.id === dados.destinatarioId)
+
+    const mensagem = {
+      tipo: 'privada',
+      remetente: dados.remetente,
+      remetenteId: dados.remetenteId,
+      texto: dados.texto,
+      hora: new Date().toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+
+    if (destinatario) {
+      io.to(destinatario.socketId).emit('novaMensagem', mensagem)
+    }
+    socket.emit('novaMensagem', mensagem)
+  })
+
+  socket.on('disconnect', async () => {
+    const usuario = usuariosOnline[socket.id]
+    if (usuario) {
+      const Usuario = require('./models/Usuario')
+      console.log('🔴 Saiu:', usuario.nome)
+      await Usuario.findByIdAndUpdate(usuario.id, { online: false })
+      delete usuariosOnline[socket.id]
+
+      const todosUsuarios = await Usuario.find({}, { senha: 0 })
+      const listaCompleta = todosUsuarios.map(u => ({
+        id: String(u._id),
+        nome: u.nome,
+        online: Object.values(usuariosOnline).some(o => o.id === String(u._id))
+      }))
+
+      io.emit('usuariosOnline', listaCompleta)
+    }
+  })
+})
+
+const PORT = process.env.PORT || 3000
+
+conectar().then(() => {
+  servidor.listen(PORT, () => {
+    console.log(`💬 BackendChat1 rodando na porta ${PORT}!`)
+  })
+})
