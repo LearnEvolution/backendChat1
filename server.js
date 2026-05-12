@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
     io.emit('usuariosOnline', Object.values(usuariosOnline))
   })
 
-  socket.on('mensagemGrupo', (dados) => {
+//*  socket.on('mensagemGrupo', (dados) => {
     console.log('💬 Mensagem grupo:', dados)
     io.emit('novaMensagem', {
       tipo: 'grupo',
@@ -72,6 +72,33 @@ io.on('connection', (socket) => {
       })
     })
   })
+*/
+
+socket.on('mensagemGrupo', async (dados) => {
+    console.log('💬 Mensagem grupo:', dados)
+    const Mensagem = require('./models/Mensagem')
+
+    const hora = new Date().toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    await Mensagem.create({
+      remetente: dados.remetente,
+      remetenteId: dados.remetenteId,
+      texto: dados.texto,
+      tipo: 'grupo'
+    })
+
+    io.emit('novaMensagem', {
+      tipo: 'grupo',
+      remetente: dados.remetente,
+      remetenteId: dados.remetenteId,
+      texto: dados.texto,
+      hora
+    })
+  })
+
 
   socket.on('mensagemPrivada', (dados) => {
     console.log('🔒 Mensagem privada:', dados)
