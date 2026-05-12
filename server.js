@@ -59,21 +59,6 @@ io.on('connection', (socket) => {
     io.emit('usuariosOnline', Object.values(usuariosOnline))
   })
 
-//*  socket.on('mensagemGrupo', (dados) => {
-    console.log('💬 Mensagem grupo:', dados)
-    io.emit('novaMensagem', {
-      tipo: 'grupo',
-      remetente: dados.remetente,
-      remetenteId: dados.remetenteId,
-      texto: dados.texto,
-      hora: new Date().toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    })
-  })
-*/
-
 socket.on('mensagemGrupo', async (dados) => {
     console.log('💬 Mensagem grupo:', dados)
     const Mensagem = require('./models/Mensagem')
