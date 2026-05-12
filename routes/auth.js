@@ -15,16 +15,19 @@ router.get('/mensagens', verificarToken, async (req, res) => {
       .sort({ createdAt: 1 })
       .limit(50)
 
-    const formatadas = mensagens.map(m => ({
+const formatadas = mensagens.map(m => ({
       remetente: m.remetente,
       remetenteId: m.remetenteId,
       texto: m.texto,
       tipo: m.tipo,
+      criadoEm: m.createdAt,
       hora: new Date(m.createdAt).toLocaleTimeString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit'
       })
     }))
+
+
 
     res.json(formatadas)
   } catch (erro) {
