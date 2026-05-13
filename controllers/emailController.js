@@ -1,18 +1,11 @@
-const nodemailer = require('nodemailer')
+const { Resend } = require('resend')
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-})
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 function gerarCodigo() {
   return Math.floor(1000 + Math.random() * 9000).toString()
 }
 
-// Códigos temporários em memória
 const codigos = {}
 
 async function enviarCodigo(req, res) {
@@ -25,12 +18,12 @@ async function enviarCodigo(req, res) {
   const codigo = gerarCodigo()
   codigos[email] = {
     codigo,
-    expira: Date.now() + 10 * 60 * 1000 // 10 minutos
+    expira: Date.now() + 10 * 60 * 1000
   }
 
   try {
-    await transporter.sendMail({
-      from: `"ChatZap" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: 'ChatZap <onboarding@resend.dev>',
       to: email,
       subject: '🔐 Seu código de verificação — ChatZap',
       html: `
