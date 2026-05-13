@@ -1,6 +1,10 @@
-const { Resend } = require('resend')
+const Brevo = require('@getbrevo/brevo')
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const client = Brevo.ApiClient.instance
+const apiKey = client.authentications['api-key']
+apiKey.apiKey = process.env.BREVO_API_KEY
+
+const emailApi = new Brevo.TransactionalEmailsApi()
 
 function gerarCodigo() {
   return Math.floor(1000 + Math.random() * 9000).toString()
@@ -22,24 +26,26 @@ async function enviarCodigo(req, res) {
   }
 
   try {
-    await resend.emails.send({
-      from: 'ChatZap <onboarding@resend.dev>',
-      to: email,
-      subject: '🔐 Seu código de verificação — ChatZap',
-      html: `
-        <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:32px;background:#0a0f1e;border-radius:16px;border:1px solid #1a2540;">
-          <h1 style="color:#00d4ff;font-size:24px;margin-bottom:8px;">💬 ChatZap</h1>
-          <p style="color:#94a3b8;margin-bottom:24px;">Seu código de verificação:</p>
-          <div style="background:#050810;border:2px solid #00d4ff;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
-            <span style="font-size:42px;font-weight:900;color:#00d4ff;letter-spacing:8px;">${codigo}</span>
-          </div>
-          <p style="color:#64748b;font-size:13px;">Este código expira em 10 minutos.</p>
-          <p style="color:#64748b;font-size:13px;">Se não foi você, ignore este email.</p>
-        </div>
-      `
-    })
+    const sendEmail = new Brevo.SendSmtpEmail()
 
+    sendEmail.sender = { name: 'ChatZap', email: 'chatzap.verificacao@gmail.com' }
+    sendEmail.to = [{ email }]
+    sendEmail.subject = '🔐 Seu código de verificação — ChatZap'
+    sendEmail.htmlContent = `
+      <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:32px;background:#0a0f1e;border-radius:16px;border:1px solid #1a2540;">
+        <h1 style="color:#00d4ff;font-size:24px;margin-bottom:8px;">💬 ChatZap</h1>
+        <p style="color:#94a3b8;margin-bottom:24px;">Seu código de verificação:</p>
+        <div style="background:#050810;border:2px solid #00d4ff;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
+          <span style="font-size:42px;font-weight:900;color:#00d4ff;letter-spacing:8px;">${codigo}</span>
+        </div>
+        <p style="color:#64748b;font-size:13px;">Este código expira em 10 minutos.</p>
+        <p style="color:#64748b;font-size:13px;">Se não foi você, ignore este email.</p>
+      </div>
+    `
+
+    await emailApi.sendTransacEmail(sendEmail)
     res.json({ mensagem: 'Código enviado!' })
+
   } catch (erro) {
     console.log('Erro ao enviar email:', erro.message)
     res.status(500).json({ erro: 'Erro ao enviar email!' })
