@@ -1,12 +1,17 @@
 const express = require('express')
 const router = express.Router()
 const controller = require('../controllers/authController')
+const emailController = require('../controllers/emailController')
 const verificarToken = require('../middleware/verificarToken')
 const Mensagem = require('../models/Mensagem')
 
 router.post('/register', controller.register)
 router.post('/login', controller.login)
 router.get('/usuarios', verificarToken, controller.listarUsuarios)
+
+// Verificação de email
+router.post('/enviar-codigo', emailController.enviarCodigo)
+router.post('/verificar-codigo', emailController.verificarCodigo)
 
 // Histórico de mensagens
 router.get('/mensagens', verificarToken, async (req, res) => {
@@ -15,7 +20,7 @@ router.get('/mensagens', verificarToken, async (req, res) => {
       .sort({ createdAt: 1 })
       .limit(50)
 
-const formatadas = mensagens.map(m => ({
+    const formatadas = mensagens.map(m => ({
       remetente: m.remetente,
       remetenteId: m.remetenteId,
       texto: m.texto,
@@ -26,8 +31,6 @@ const formatadas = mensagens.map(m => ({
         minute: '2-digit'
       })
     }))
-
-
 
     res.json(formatadas)
   } catch (erro) {
