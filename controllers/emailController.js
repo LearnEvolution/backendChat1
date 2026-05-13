@@ -1,4 +1,4 @@
-const { Brevo } = require('@getbrevo/brevo')
+const { BrevoClient } = require('@getbrevo/brevo')
 
 function gerarCodigo() {
   return Math.floor(1000 + Math.random() * 9000).toString()
@@ -20,9 +20,9 @@ async function enviarCodigo(req, res) {
   }
 
   try {
-    const brevo = new Brevo({ apiKey: process.env.BREVO_API_KEY })
+    const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY })
 
-    await brevo.sendTransactionalEmail({
+    await brevo.transactionalEmails.sendTransacEmail({
       sender: { name: 'ChatZap', email: 'chatzap.verificacao@gmail.com' },
       to: [{ email }],
       subject: '🔐 Seu código — ChatZap',
